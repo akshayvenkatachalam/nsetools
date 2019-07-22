@@ -23,6 +23,7 @@ Main Features:
 =============
 
 * Getting live quotes for stocks using stock codes.
+* Live futures data for stocks, indices not yet supportes
 * Return data in both json and python dict and list formats.
 * Getting quotes for all the indices traded in NSE, e.g CNX NIFTY, BANKNIFTY etc.
 * Getting list of top losers.
