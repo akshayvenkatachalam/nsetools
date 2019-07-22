@@ -181,7 +181,7 @@ class Nse(AbstractBaseExchange):
         else:
             return None
 
-  def get_FUTquote(self, code, as_json=False):
+  def get_FUTquote(self, code, expiry, as_json=False):
         """
         gets the quote for a given stock code
         :param code:
@@ -189,6 +189,7 @@ class Nse(AbstractBaseExchange):
         :raises: HTTPError, URLError
         """
         code = code.upper()
+        expiry = expiry.upper()
         if self.is_valid_code(code):
             url = self.build_url_for_FUTquote(code, expiry)
             req = Request(url, None, self.headers)
@@ -420,14 +421,14 @@ class Nse(AbstractBaseExchange):
         else:
             raise Exception('code must be string')
 
-    def build_url_for_FUTquote(self, underlying, expiry):
+    def build_url_for_FUTquote(self, code, expiry):
         """
         builds a url which can be requested for a given stock code
         :param code: string containing stock code.
         :return: a url object
         """
         if code is not None and type(code) is str:
-            encoded_args = urlencode([('underlying', underlying), ('instrument', 'FUTSTK'), ('expiry', expiry), ('type', 'SELECT'), ('strike', 'SELECT')])
+            encoded_args = urlencode([('underlying', code), ('instrument', 'FUTSTK'), ('expiry', expiry), ('type', 'SELECT'), ('strike', 'SELECT')])
             return self.get_FUTquote_url + encoded_args
         else:
             raise Exception('code must be string')
