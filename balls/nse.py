@@ -202,18 +202,18 @@ class Nse(AbstractBaseExchange):
             res = byte_adaptor(res)
             res = res.read()
             # Now parse the response to get the relevant data
-            match = re.search(\
-                        r'<div\s+id="responseDiv"\s+style="display:none">(.*?)</div>',
-                        res, re.S
-                    )
+            # match = re.search(\
+            #            r'<div\s+id="responseDiv"\s+style="display:none">(.*?)</div>',
+            #            res, re.S
+            #        )
             try:
-                buffer = match.group(1).strip()
+                # buffer = match.group(1).strip()
                 # commenting following two lines because now we are not using ast and instead
                 # relying on json's ability to do parsing. Should be much faster and more
                 # reliable. 
                 #buffer = js_adaptor(buffer)
                 #response = self.clean_server_response(ast.literal_eval(buffer)['data'][0])
-                response = self.clean_server_response(json.loads(buffer)['data'][0])
+                response = self.clean_server_response(json.loads(res)['data'][0])
             except SyntaxError as err:
                 raise Exception('ill formatted response')
             else:
