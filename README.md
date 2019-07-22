@@ -1,3 +1,4 @@
+PLEASE RENAME "balls" FOLDER TO "nsetools" AFTER INSTALLATION
 Project Page
 =============
 http://nsetools.readthedocs.io
