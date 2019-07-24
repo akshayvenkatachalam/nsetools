@@ -55,7 +55,7 @@ class Nse(AbstractBaseExchange):
         self.headers = self.nse_headers()
         # URL list
         self.get_quote_url = 'https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/GetQuote.jsp?'
-        self.get_FUTquote_url = 'https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/ajaxFOGetQuoteJSON.jsp?'
+        self.get_DRVquote_url = 'https://www.nseindia.com/live_market/dynaContent/live_watch/get_quote/ajaxFOGetQuoteJSON.jsp?'
         self.stocks_csv_url = 'http://www.nseindia.com/content/equities/EQUITY_L.csv'
         self.top_gainer_url = 'http://www.nseindia.com/live_market/dynaContent/live_analysis/gainers/niftyGainers1.json'
         self.top_loser_url = 'http://www.nseindia.com/live_market/dynaContent/live_analysis/losers/niftyLosers1.json'
@@ -220,7 +220,44 @@ class Nse(AbstractBaseExchange):
                 return self.render_response(response, as_json)
         else:
             return None
+    def get_OPTquote(self, code, expiry, opttype, strike, as_json=False):
+        """
+        gets the quote for a given stock code
+        :param code:
+        :return: dict or None
+        :raises: HTTPError, URLError
+        """
+        code = code.upper()
+        expiry = expiry.upper()
+        opttype = opttype.upper()
+        if self.is_valid_code(code):
+            url = self.build_url_for_OPTquote(code, expiry, opttype, strike)
+            req = Request(url, None, self.headers)
+            # this can raise HTTPError and URLError, but we are not handling it
+            # north bound APIs should use it for exception handling
+            res = self.opener.open(req)
 
+            # for py3 compat covert byte file like object to
+            # string file like object
+            res = byte_adaptor(res)
+            res = res.read()
+            # Now parse the response to get the relevant data
+
+            try:
+                # buffer = res.group(1).strip()
+                # commenting following two lines because now we are not using ast and instead
+                # relying on json's ability to do parsing. Should be much faster and more
+                # reliable. 
+                #buffer = js_adaptor(buffer)
+                #response = self.clean_server_response(ast.literal_eval(buffer)['data'][0])
+                response = self.clean_server_response(json.loads(res)['data'][0])
+            except SyntaxError as err:
+                raise Exception('ill formatted response')
+            else:
+                    return self.render_response(response, as_json)
+        else:
+            return None
+        
     def get_top_gainers(self, as_json=False):
         """
         :return: a list of dictionaries containing top gainers of the day
@@ -432,7 +469,18 @@ class Nse(AbstractBaseExchange):
             return self.get_FUTquote_url + encoded_args
         else:
             raise Exception('code must be string')
-
+            
+    def build_url_for_OPTquote(self, code, expiry, opttype, strike):
+        """
+        builds a url which can be requested for a given stock code
+        :param code: string containing stock code.
+        :return: a url object
+        """
+        if code is not None and type(code) is str:
+            encoded_args = urlencode([('underlying', code), ('instrument', 'OPTSTK'), ('expiry', expiry), ('type', opttype), ('strike', strike)])
+            return self.get_DRVquote_url + encoded_args
+        else:
+            raise Exception('code must be string')
 
     def clean_server_response(self, resp_dict):
         """cleans the server reponse by replacing:
