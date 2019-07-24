@@ -57,6 +57,14 @@ class AbstractBaseExchange(six.with_metaclass(ABCMeta, object)):
         :return: a dictionary which contain detailed FUT code.
         """
         raise NotImplementedError
+        
+    @abstractmethod
+    def get_OPTquote(self, code, expiry, type, strike):
+        """
+        :param code: a stock code, expiry date, CE/PE, strike price (2 decimals)
+        :return: a dictionary which contain detailed FUT code.
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def get_top_gainers(self):
